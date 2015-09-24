@@ -1,3 +1,3 @@
 # SimpleLoadMoreListView
 
-This is a simple can auto load more ListView
+This is a simple  when scroll to the bottom can auto load more ListView.
