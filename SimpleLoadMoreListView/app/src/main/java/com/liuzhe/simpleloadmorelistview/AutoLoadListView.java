@@ -2,6 +2,7 @@ package com.liuzhe.simpleloadmorelistview;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AbsListView;
@@ -14,13 +15,16 @@ import android.widget.TextView;
  */
 public class AutoLoadListView extends ListView {
 
+    private static String TAG = "AutoLoadListView";
+
     View footerView; // 底部FooterView
     private boolean loadMoreEnabled = true; // 加载更多是否可用
     private int status; // 当前加载状态
     private static final int LOADING = 1; // 正在加载更多
     private static final int LOADED = 2; // 加载完成
     private int mLastItemIndex; // 最后一项
-    private OnLoadMoreListener mLoadMoreListener; // 加载更多回调接口
+    private int firstItem;
+    private OnListViewChangeListener mLoadMoreListener; // 加载更多回调接口
 
     public AutoLoadListView(Context context) {
         super(context);
@@ -41,8 +45,9 @@ public class AutoLoadListView extends ListView {
      *加载更多回调接口
      * Created by LiuZhe on 2015/9/24.
      */
-    public interface OnLoadMoreListener {
+    public interface OnListViewChangeListener {
         void onLoadMore();
+        void onRefresh();
     }
 
     /**
@@ -50,7 +55,7 @@ public class AutoLoadListView extends ListView {
      * @param loadMoreListener 加载更多回调接口
      * Created by LiuZhe on 2015/9/24.
      */
-    public void setLoadMoreListener(OnLoadMoreListener loadMoreListener) {
+    public void setLoadMoreListener(OnListViewChangeListener loadMoreListener) {
         mLoadMoreListener = loadMoreListener;
     }
 
@@ -60,6 +65,10 @@ public class AutoLoadListView extends ListView {
      */
     public void loadComplete() {
         status = LOADED;
+    }
+
+    public void onRefreshComplete() {
+        removeHeaderView(footerView);
     }
 
     /**
@@ -92,11 +101,19 @@ public class AutoLoadListView extends ListView {
 
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
+                if(scrollState == SCROLL_STATE_TOUCH_SCROLL && firstItem == 0) {
+                    Log.e(TAG, "SCROLL_STATE_TOUCH_SCROLL");
+                    addHeaderView(footerView);
+                    mLoadMoreListener.onRefresh();
+                }
             }
+
+
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                 mLastItemIndex = firstVisibleItem + visibleItemCount; // 第一个可见的编号 + 总共有多少个可见的Item
+                firstItem = firstVisibleItem;
                 if (mLastItemIndex == totalItemCount && loadMoreEnabled) {
                     if (null != mLoadMoreListener && status != LOADING) {
                         mLoadMoreListener.onLoadMore();
