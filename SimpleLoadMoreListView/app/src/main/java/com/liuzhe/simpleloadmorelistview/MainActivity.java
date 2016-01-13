@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ArrayAdapter;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
                     public void run() {
                         adapter.notifyDataSetChanged();
                         listView.onRefreshComplete();
+                        Toast.makeText(getApplicationContext(), "刷新了", Toast.LENGTH_LONG).show();
                     }
                 });
 
@@ -94,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
                         listView.loadComplete();
                         if (num >= 99) {
                             listView.setLoadMoreEnabled(false);
-                            listView.setTipText("加载完啦");
+//                            listView.setTipText("加载完啦");
                         }
                     }
                 });
